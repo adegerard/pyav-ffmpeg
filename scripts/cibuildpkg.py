@@ -129,6 +129,11 @@ class Builder:
         self.patch_dir = os.path.abspath("patches")
         self.source_dir = os.path.abspath("source")
 
+        print(f"- source directory: {self.source_dir}")
+        print(f"- patch directory: {self.patch_dir}")
+        print(f"- build directory: {self.build_dir}")
+
+
     def build(self, package: Package, *, for_builder: bool = False):
         # if the package is already installed, do nothing
         installed_dir = os.path.join(
@@ -154,6 +159,7 @@ class Builder:
         with open(installed_file, "w") as fp:
             fp.write("installed\n")
 
+
     def create_directories(self) -> None:
         # print debugging information
         if platform.system() == "Darwin":
@@ -176,6 +182,7 @@ class Builder:
             os.path.join(self._builder_dest_dir, "bin"),
             separator=";" if platform.system() == "Windows" else ":",
         )
+
 
     def _build_with_autoconf(self, package: Package, for_builder: bool) -> None:
         assert package.build_system == "autoconf"
@@ -252,6 +259,7 @@ class Builder:
             )
             run(["make", "install"], env=env)
 
+
     def _build_with_cmake(self, package: Package, for_builder: bool) -> None:
         assert package.build_system == "cmake"
         package_path = os.path.join(self.build_dir, package.name)
@@ -289,6 +297,7 @@ class Builder:
                 env=env,
             )
             run(["cmake", "--install", "."], env=env)
+
 
     def _build_with_meson(self, package: Package, for_builder: bool) -> None:
         assert package.build_system == "meson"
@@ -330,6 +339,7 @@ endian = 'little'
             )
             run(["ninja", "--verbose"], env=env)
             run(["ninja", "install"], env=env)
+
 
     def _build_x265(self, package: Package, for_builder: bool) -> None:
         assert package.name == "x265"
@@ -396,6 +406,7 @@ endian = 'little'
         ]
         self._build_with_cmake(package=package, for_builder=for_builder)
 
+
     def _extract(self, package: Package) -> None:
         assert package.source_strip_components in (
             0,
@@ -435,6 +446,7 @@ endian = 'little'
         if os.path.exists(patch):
             run(["patch", "-d", path, "-i", patch, "-p1"])
 
+
     def _environment(self, *, for_builder: bool) -> dict[str, str]:
         env = os.environ.copy()
 
@@ -449,7 +461,7 @@ endian = 'little'
             env,
             "PKG_CONFIG_PATH",
             self._mangle_path(os.path.join(prefix, "lib", "pkgconfig")),
-            separator=":",
+            separator=";" if platform.system() == "Windows" else ":",
         )
 
         if platform.system() == "Darwin" and not for_builder:
@@ -461,13 +473,14 @@ endian = 'little'
 
         return env
 
+
     def _mangle_path(self, path: str) -> str:
         if platform.system() == "Windows":
-            return (
-                path.replace(os.path.sep, "/").replace("C:", "/c").replace("D:", "/d")
-            )
-        else:
-            return path
+            path = path.replace(os.path.sep, "/")
+            if path[1] == ':':
+                path = f"/{path[0].lower()}{path[2:]}"
+        return path
+
 
     def _prefix(self, *, for_builder: bool) -> str:
         if for_builder:

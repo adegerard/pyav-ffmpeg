@@ -20,4 +20,13 @@ What differs from the original branch
     python scripts/build-ffmpeg.py /tmp/vendor
     ```
 
+- Windows  11, python 3.11.8, MSYS2(mingw64)
+    ```sh
+        pacman -Suy
+        pacman -S mingw-w64-x86_64-python mingw-w64-x86_64-python-pip
+        pacman -S base-devel mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake
+        pacman -S mingw-w64-x86_64-gperf mingw-w64-x86_64-nasm
+        python scripts/build-ffmpeg.py /c/cibw/vendor
+    ```
+
 .. _PyAV: https://github.com/PyAV-Org/PyAV
