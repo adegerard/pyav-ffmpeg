@@ -33,6 +33,63 @@ output_tarball = os.path.join(output_dir, f"ffmpeg-{get_platform()}.tar.gz")
 # FFmpeg has native TLS backends for macOS and Windows
 use_gnutls = plat == "Linux"
 
+
+ffmpeg_build_args = [
+    "--disable-alsa",
+    "--disable-doc",
+    "--disable-libtheora",
+    "--disable-mediafoundation",
+    "--disable-videotoolbox",
+    "--disable-audiotoolbox",
+    "--enable-fontconfig",
+    "--enable-gmp",
+    "--enable-gnutls" if use_gnutls else "--disable-gnutls",
+    "--disable-libaom",
+    "--disable-libass",
+    "--disable-libbluray",
+    "--disable-libdav1d",
+    "--enable-libfreetype",
+    "--disable-libmp3lame",
+    "--disable-libopencore-amrnb",
+    "--disable-libopencore-amrwb",
+    "--enable-libopenjpeg",
+    "--disable-libopus",
+    "--disable-libspeex",
+    "--disable-libtwolame",
+    "--disable-libvorbis",
+    "--disable-libvpx",
+    "--enable-libxcb" if plat == "Linux" else "--disable-libxcb",
+    "--enable-libxml2",
+    "--enable-lzma",
+    "--enable-zlib",
+    "--enable-version3",
+
+    # GPL
+    "--disable-libx264",
+    "--disable-libopenh264",
+    "--disable-libx265",
+    "--disable-libxvid",
+    "--enable-gpl",
+
+    # TODO: enable this?
+    # "--enable-libopencv",
+
+]
+# if disable_gpl:
+#     ffmpeg_build_args.extend(["--enable-libopenh264", "--disable-libx264"])
+# else:
+#     ffmpeg_build_args.extend(
+#         [
+#             "--enable-libx264",
+#             "--disable-libopenh264",
+#             "--enable-libx265",
+#             "--enable-libxvid",
+#             "--enable-gpl",
+#         ]
+#     )
+
+
+
 if not os.path.exists(output_tarball):
     builder = Builder(dest_dir=dest_dir)
     builder.create_directories()
@@ -52,7 +109,7 @@ if not os.path.exists(output_tarball):
                     "zlib-devel",
                 ]
             )
-        available_tools.update(["gperf"])
+        available_tools.update(["gperf", "nasm"])
     elif plat == "Windows":
         available_tools.update(["gperf", "nasm"])
 
@@ -75,14 +132,14 @@ if not os.path.exists(output_tarball):
             for_builder=True,
         )
 
-    if "nasm" not in available_tools:
-        builder.build(
-            Package(
-                name="nasm",
-                source_url="https://www.nasm.us/pub/nasm/releasebuilds/2.14.02/nasm-2.14.02.tar.bz2",
-            ),
-            for_builder=True,
-        )
+    # if "nasm" not in available_tools:
+    #     builder.build(
+    #         Package(
+    #             name="nasm",
+    #             source_url="https://www.nasm.us/pub/nasm/releasebuilds/2.16.01/nasm-2.16.01.tar.gz",
+    #         ),
+    #         for_builder=True,
+    #     )
 
     library_group = [
         Package(
@@ -183,51 +240,51 @@ if not os.path.exists(output_tarball):
         ]
 
     codec_group = [
-        Package(
-            name="aom",
-            requires=["cmake"],
-            source_url="https://storage.googleapis.com/aom-releases/libaom-3.2.0.tar.gz",
-            source_strip_components=0,
-            build_system="cmake",
-            build_arguments=[
-                "-DENABLE_DOCS=0",
-                "-DENABLE_EXAMPLES=0",
-                "-DENABLE_TESTS=0",
-                "-DENABLE_TOOLS=0",
-            ],
-            build_parallel=False,
-        ),
-        Package(
-            name="ass",
-            requires=["fontconfig", "freetype", "fribidi", "harfbuzz", "nasm", "png"],
-            source_url="https://github.com/libass/libass/releases/download/0.15.2/libass-0.15.2.tar.gz",
-        ),
-        Package(
-            name="bluray",
-            requires=["fontconfig"],
-            source_url="https://download.videolan.org/pub/videolan/libbluray/1.3.4/libbluray-1.3.4.tar.bz2",
-            build_arguments=["--disable-bdjava-jar"],
-        ),
-        Package(
-            name="dav1d",
-            requires=["meson", "nasm", "ninja"],
-            source_url="https://code.videolan.org/videolan/dav1d/-/archive/1.4.1/dav1d-1.4.1.tar.bz2",
-            build_system="meson",
-        ),
-        Package(
-            name="lame",
-            source_url="http://deb.debian.org/debian/pool/main/l/lame/lame_3.100.orig.tar.gz",
-        ),
-        Package(
-            name="ogg",
-            source_url="http://downloads.xiph.org/releases/ogg/libogg-1.3.5.tar.gz",
-        ),
-        Package(
-            name="opencore-amr",
-            source_url="http://deb.debian.org/debian/pool/main/o/opencore-amr/opencore-amr_0.1.5.orig.tar.gz",
-            # parallel build hangs on Windows
-            build_parallel=plat != "Windows",
-        ),
+        # Package(
+        #     name="aom",
+        #     requires=["cmake"],
+        #     source_url="https://storage.googleapis.com/aom-releases/libaom-3.2.0.tar.gz",
+        #     source_strip_components=0,
+        #     build_system="cmake",
+        #     build_arguments=[
+        #         "-DENABLE_DOCS=0",
+        #         "-DENABLE_EXAMPLES=0",
+        #         "-DENABLE_TESTS=0",
+        #         "-DENABLE_TOOLS=0",
+        #     ],
+        #     build_parallel=False,
+        # ),
+        # Package(
+        #     name="ass",
+        #     requires=["fontconfig", "freetype", "fribidi", "harfbuzz", "nasm", "png"],
+        #     source_url="https://github.com/libass/libass/releases/download/0.15.2/libass-0.15.2.tar.gz",
+        # ),
+        # Package(
+        #     name="bluray",
+        #     requires=["fontconfig"],
+        #     source_url="https://download.videolan.org/pub/videolan/libbluray/1.3.4/libbluray-1.3.4.tar.bz2",
+        #     build_arguments=["--disable-bdjava-jar"],
+        # ),
+        # Package(
+        #     name="dav1d",
+        #     requires=["meson", "nasm", "ninja"],
+        #     source_url="https://code.videolan.org/videolan/dav1d/-/archive/1.4.1/dav1d-1.4.1.tar.bz2",
+        #     build_system="meson",
+        # ),
+        # Package(
+        #     name="lame",
+        #     source_url="http://deb.debian.org/debian/pool/main/l/lame/lame_3.100.orig.tar.gz",
+        # ),
+        # Package(
+        #     name="ogg",
+        #     source_url="http://downloads.xiph.org/releases/ogg/libogg-1.3.5.tar.gz",
+        # ),
+        # Package(
+        #     name="opencore-amr",
+        #     source_url="http://deb.debian.org/debian/pool/main/o/opencore-amr/opencore-amr_0.1.5.orig.tar.gz",
+        #     # parallel build hangs on Windows
+        #     build_parallel=plat != "Windows",
+        # ),
         Package(
             name="openjpeg",
             requires=["cmake"],
@@ -235,110 +292,68 @@ if not os.path.exists(output_tarball):
             source_url="https://github.com/uclouvain/openjpeg/archive/v2.5.2.tar.gz",
             build_system="cmake",
         ),
-        Package(
-            name="opus",
-            source_url="https://github.com/xiph/opus/releases/download/v1.4/opus-1.4.tar.gz",
-            build_arguments=["--disable-doc", "--disable-extra-programs"],
-        ),
-        Package(
-            name="speex",
-            source_url="http://downloads.xiph.org/releases/speex/speex-1.2.1.tar.gz",
-            build_arguments=["--disable-binaries"],
-        ),
-        Package(
-            name="twolame",
-            source_url="http://deb.debian.org/debian/pool/main/t/twolame/twolame_0.4.0.orig.tar.gz",
-            build_arguments=["--disable-sndfile"],
-        ),
-        Package(
-            name="vorbis",
-            requires=["ogg"],
-            source_url="http://downloads.xiph.org/releases/vorbis/libvorbis-1.3.7.tar.gz",
-        ),
-        Package(
-            name="vpx",
-            source_filename="vpx-1.14.0.tar.gz",
-            source_url="https://github.com/webmproject/libvpx/archive/v1.14.0.tar.gz",
-            build_arguments=[
-                "--disable-examples",
-                "--disable-tools",
-                "--disable-unit-tests",
-            ],
-        ),
-        Package(
-            name="x264",
-            source_url="https://code.videolan.org/videolan/x264/-/archive/master/x264-master.tar.bz2",
-            # parallel build runs out of memory on Windows
-            build_parallel=plat != "Windows",
-            gpl=True,
-        ),
-        Package(
-            name="x265",
-            requires=["cmake"],
-            source_url="https://bitbucket.org/multicoreware/x265_git/downloads/x265_3.5.tar.gz",
-            build_system="cmake",
-            source_dir="source",
-            gpl=True,
-        ),
-        Package(
-            name="xvid",
-            requires=["nasm"],
-            source_url="https://downloads.xvid.com/downloads/xvidcore-1.3.7.tar.gz",
-            source_dir="build/generic",
-            build_dir="build/generic",
-            gpl=True,
-        ),
+        # Package(
+        #     name="opus",
+        #     source_url="https://github.com/xiph/opus/releases/download/v1.4/opus-1.4.tar.gz",
+        #     build_arguments=["--disable-doc", "--disable-extra-programs"],
+        # ),
+        # Package(
+        #     name="speex",
+        #     source_url="http://downloads.xiph.org/releases/speex/speex-1.2.1.tar.gz",
+        #     build_arguments=["--disable-binaries"],
+        # ),
+        # Package(
+        #     name="twolame",
+        #     source_url="http://deb.debian.org/debian/pool/main/t/twolame/twolame_0.4.0.orig.tar.gz",
+        #     build_arguments=["--disable-sndfile"],
+        # ),
+        # Package(
+        #     name="vorbis",
+        #     requires=["ogg"],
+        #     source_url="http://downloads.xiph.org/releases/vorbis/libvorbis-1.3.7.tar.gz",
+        # ),
+        # Package(
+        #     name="vpx",
+        #     source_filename="vpx-1.14.0.tar.gz",
+        #     source_url="https://github.com/webmproject/libvpx/archive/v1.14.0.tar.gz",
+        #     build_arguments=[
+        #         "--disable-examples",
+        #         "--disable-tools",
+        #         "--disable-unit-tests",
+        #     ],
+        # ),
+        # Package(
+        #     name="x264",
+        #     source_url="https://code.videolan.org/videolan/x264/-/archive/master/x264-master.tar.bz2",
+        #     # parallel build runs out of memory on Windows
+        #     build_parallel=plat != "Windows",
+        #     gpl=True,
+        # ),
+        # Package(
+        #     name="x265",
+        #     requires=["cmake"],
+        #     source_url="https://bitbucket.org/multicoreware/x265_git/downloads/x265_3.5.tar.gz",
+        #     build_system="cmake",
+        #     source_dir="source",
+        #     gpl=True,
+        # ),
+        # Package(
+        #     name="xvid",
+        #     requires=["nasm"],
+        #     source_url="https://downloads.xvid.com/downloads/xvidcore-1.3.7.tar.gz",
+        #     source_dir="build/generic",
+        #     build_dir="build/generic",
+        #     gpl=True,
+        # ),
     ]
 
-    openh264 = Package(
-        name="openh264",
-        requires=["meson", "nasm", "ninja"],
-        source_filename="openh264-2.4.1.tar.gz",
-        source_url="https://github.com/cisco/openh264/archive/refs/tags/v2.4.1.tar.gz",
-        build_system="meson",
-    )
-
-    ffmpeg_build_args = [
-        "--disable-alsa",
-        "--disable-doc",
-        "--disable-libtheora",
-        "--disable-mediafoundation",
-        "--disable-videotoolbox",
-        "--enable-fontconfig",
-        "--enable-gmp",
-        "--enable-gnutls" if use_gnutls else "--disable-gnutls",
-        "--enable-libaom",
-        "--enable-libass",
-        "--enable-libbluray",
-        "--enable-libdav1d",
-        "--enable-libfreetype",
-        "--enable-libmp3lame",
-        "--enable-libopencore-amrnb",
-        "--enable-libopencore-amrwb",
-        "--enable-libopenjpeg",
-        "--enable-libopus",
-        "--enable-libspeex",
-        "--enable-libtwolame",
-        "--enable-libvorbis",
-        "--enable-libvpx",
-        "--enable-libxcb" if plat == "Linux" else "--disable-libxcb",
-        "--enable-libxml2",
-        "--enable-lzma",
-        "--enable-zlib",
-        "--enable-version3"
-    ]
-    if disable_gpl:
-        ffmpeg_build_args.extend(["--enable-libopenh264", "--disable-libx264"])
-    else:
-        ffmpeg_build_args.extend(
-            [
-                "--enable-libx264",
-                "--disable-libopenh264",
-                "--enable-libx265",
-                "--enable-libxvid",
-                "--enable-gpl",
-            ]
-        )
+    # openh264 = Package(
+    #     name="openh264",
+    #     requires=["meson", "nasm", "ninja"],
+    #     source_filename="openh264-2.4.1.tar.gz",
+    #     source_url="https://github.com/cisco/openh264/archive/refs/tags/v2.4.1.tar.gz",
+    #     build_system="meson",
+    # )
 
     ffmpeg_package = Package(
         name="ffmpeg",
@@ -354,10 +369,10 @@ if not os.path.exists(output_tarball):
 
     for package in packages:
         if disable_gpl and package.gpl:
-            if package.name == "x264":
-                builder.build(openh264)
-            else:
-                pass
+            # if package.name == "x264":
+            #     builder.build(openh264)
+            # else:
+            pass
         else:
             builder.build(package)
 
