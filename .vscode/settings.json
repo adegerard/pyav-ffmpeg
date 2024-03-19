@@ -1,6 +1,7 @@
 {
     "files.exclude": {
         "build": true,
-        "source": true
+        "source": true,
+        "**/*.tar.gz": true,
     }
 }

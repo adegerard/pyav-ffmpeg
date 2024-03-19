@@ -16,12 +16,13 @@ parser.add_argument(
     help="AArch64 build requires stage and possible values can be 1, 2 or 3",
 )
 parser.add_argument("--disable-gpl", action="store_true")
+parser.add_argument("--rebuild", action="store_true", default=False)
 args = parser.parse_args()
 
 dest_dir = args.destination
 build_stage = None if args.stage is None else int(args.stage) - 1
 disable_gpl = args.disable_gpl
-del args
+rebuild: bool = args.rebuild
 
 output_dir = os.path.abspath("output")
 plat = platform.system()
@@ -90,7 +91,7 @@ ffmpeg_build_args = [
 
 
 
-if not os.path.exists(output_tarball):
+if not os.path.exists(output_tarball) or rebuild:
     builder = Builder(dest_dir=dest_dir)
     builder.create_directories()
 

@@ -1,7 +1,7 @@
-# pyav-ffmpeg (fork)
+# pyav-ffmpeg-lite
 
 This project is a fork of [pyav-ffmpeg](https://github.com/PyAV-Org/pyav-ffmpeg).
-It provides binary builds of FFmpeg and its dependencies for `PyAV`_.
+It provides binary builds of FFmpeg and its dependencies for [pyav-lite](https://github.com/adegerard/pyav-ffmpeg-lite).
 
 Build for the following platforms:
 - Debian 12 (x86_64)
@@ -17,16 +17,14 @@ What differs from the original branch
     conda create -n pyav python==3.11.8
     conda activate pyav
     sudo apt-get install gcc curl nasm
-    python scripts/build-ffmpeg.py /tmp/vendor
+    python scripts/build-ffmpeg.py /tmp/pyav
     ```
 
 - Windows  11, python 3.11.8, MSYS2(mingw64)
     ```sh
-        pacman -Suy
-        pacman -S mingw-w64-x86_64-python mingw-w64-x86_64-python-pip
-        pacman -S base-devel mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake
-        pacman -S mingw-w64-x86_64-gperf mingw-w64-x86_64-nasm
-        python scripts/build-ffmpeg.py /c/cibw/vendor
+    pacman -Suy
+    pacman -S mingw-w64-x86_64-python mingw-w64-x86_64-python-pip
+    pacman -S base-devel mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake
+    pacman -S mingw-w64-x86_64-gperf mingw-w64-x86_64-nasm
+    python scripts/build-ffmpeg.py /a/tmp/pyav
     ```
-
-.. _PyAV: https://github.com/PyAV-Org/PyAV

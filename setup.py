@@ -2,11 +2,11 @@ import setuptools
 import sys
 
 if sys.platform == "win32":
-    include_dirs = ["C:\\cibw\\vendor\\include"]
-    library_dirs = ["C:\\cibw\\vendor\\lib"]
+    include_dirs = ["C:\\cibw\\pyav\\include"]
+    library_dirs = ["C:\\cibw\\pyav\\lib"]
 else:
-    include_dirs = ["/tmp/vendor/include"]
-    library_dirs = ["/tmp/vendor/lib"]
+    include_dirs = ["/tmp/pyav/include"]
+    library_dirs = ["/tmp/pyav/lib"]
 
 setuptools.setup(
     name="dummy",
